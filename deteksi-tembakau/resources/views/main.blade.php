@@ -6,64 +6,6 @@
   <title>Deteksi Tembakau</title>
   @vite('resources/css/app.css')
   <meta name="csrf-token" content="{{ csrf_token() }}" />
-  <style>
-    /* .circle-progress {
-      --progress: 0;
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: conic-gradient(#88B04B calc(var(--progress) * 1%), #ddd 0);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-weight: bold;
-      font-size: 1.25rem;
-      color: #4A7C1E;
-      box-shadow: 0 0 8px #88B04B66;
-    } */
-     /* .circle-wrapper {
-  width: 120px;
-  height: 120px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.circle-progress {
-  --progress: 0;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  background: conic-gradient(
-    #88B04B calc(var(--progress) * 1%),
-    #ddd 0
-  );
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-shadow: 0 0 8px #88B04B66;
-}
-
-.circle-progress::before {
-  content: "";
-  position: absolute;
-  width: 70px;
-  height: 70px;
-  background-color: white;
-  border-radius: 50%;
-  z-index: 1;
-}
-
-.circle-inner {
-  position: relative;
-  z-index: 3;
-  font-weight: bold;
-  font-size: 1.25rem;
-  color: #4A7C1E;
-} */
-
-  </style>
 </head>
 <body class="relative overflow-x-hidden bg-green-50 min-h-screen">
 
@@ -180,9 +122,17 @@
 
         const data = await response.json();
         
-        if (data.class === null || data.confidence < 0.5) {
-        alert(data.message || 'Gambar tidak bisa diprediksi, mohon upload gambar yang benar.');
-        return;
+        if (data.class === null || data.confidence < 0.75) {
+          document.getElementById('popupClass').innerHTML = `<span class="text-red-600 font-semibold">Gambar tidak dikenali</span>`;
+          
+          const popupConfidence = document.getElementById('popupConfidence');
+          popupConfidence.querySelector('div:last-child').innerText = `0%`;
+          popupConfidence.style.setProperty('--progress', 0);
+
+          document.getElementById('popupDescription').innerText = "Keterangan tidak tersedia karena gambar tidak dikenali sebagai daun tembakau.";
+
+          document.getElementById('popup').classList.remove('translate-x-full');
+          return;
         }
 
         document.getElementById('popupClass').innerHTML = `Kelas: <span class="font-semibold">${data.class}</span>`;

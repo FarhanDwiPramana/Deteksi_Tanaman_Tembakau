@@ -11,6 +11,7 @@ MODEL_PATH = os.path.join('model', 'Model Fixed.h5')
 model = tf.keras.models.load_model(MODEL_PATH)
 
 CLASS_NAMES = ['A', 'B', 'C']
+THRESHOLD = 0.7  # Ambang batas kepercayaan minimal
 
 def preprocess_image(image_bytes):
     image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
@@ -34,11 +35,21 @@ def predict():
         confidence = float(np.max(prediction[0]))
         label = CLASS_NAMES[predicted_index]
 
+        # Cek apakah confidence cukup tinggi
+        if confidence < THRESHOLD:
+            return jsonify({
+                'recognized': False,
+                'message': 'Gambar tidak dikenali. Pastikan gambar adalah daun tembakau yang valid.',
+                'confidence': confidence,
+                'raw_scores': prediction[0].tolist()
+            }), 200
+
         return jsonify({
+            'recognized': True,
             'class': label,
             'confidence': confidence,
             'raw_scores': prediction[0].tolist()
-        })
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
